@@ -1,0 +1,40 @@
+version: '3'
+services:
+  elasticsearch_node:
+          volumes:
+                  - esdata:/usr/share/elasticsearch/data:rw 
+          image: elasticsearch_image
+          build: ./es
+          container_name: elasticsearch
+          ports:
+            - "9200:9200"
+
+  kibana_node:
+          image: kibana_image
+          build: ./kibana
+          container_name: kibana
+          depends_on:
+                  - elasticsearch_node
+          ports:
+                  - "5601:5601"
+
+  mosquitto_node:
+          image: mosquitto_image
+          build: ./mosquitto
+          container_name: mosquitto
+          ports:
+                  - "1883:1883"
+
+  nodejs_http_proxy_node:
+          image: nodejs_http_proxy_image
+          build: ./node-http-proxy
+          container_name: nodejs_http_proxy
+          network_mode: "host"
+          #ports:
+          #        - "9500:9500"
+          depends_on:
+                  - elasticsearch_node
+
+volumes:
+        esdata:
+                driver: local
